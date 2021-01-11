@@ -31,6 +31,10 @@ def get_merged_branches(master_branch):
         if not branch:
             continue
 
+        # Don't delete master branch.
+        if branch == master_branch:
+            continue
+
         yield branch
 
 def delete_branch(branch):
