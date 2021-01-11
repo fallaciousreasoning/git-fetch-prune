@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import subprocess
+import sys
 
 def git_output(args):
     result = subprocess.run(['git', *args], stdout=subprocess.PIPE)
@@ -44,4 +45,12 @@ def run(dry_run=True):
             delete_branch(branch)
         print(f'Deleted {branch}')
 
-run()
+    if dry_run:
+        print('This was a dry run. Use --force or -F to actually delete branches')
+
+def should_actually_delete():
+    return '--force' in sys.argv or '-F' in sys.argv
+
+if __name__ == "__main__":
+    dry_run = not should_actually_delete()
+    run(dry_run)
