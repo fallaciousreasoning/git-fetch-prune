@@ -8,11 +8,11 @@ def git_output(args):
     return result.stdout.decode('utf-8')
 
 def get_master_branch():
-    possible_masters = [ 'develop' ]
+    possible_masters = [ 'develop', 'master', 'main' ]
 
     for possible in possible_masters:
         output = git_output(['branch', '--list'])
-        if output:
+        if output == possible:
             return possible
 
     return 'master'
