@@ -10,14 +10,6 @@ def git_output(args):
     result = subprocess.run(['git', *args], stdout=subprocess.PIPE)
     return result.stdout.decode('utf-8')
 
-def get_master_branch():
-    for branch in git_output(['branch', '--list']).splitlines():
-        branch = branch.strip()
-        if branch in possible_masters:
-            return branch
-
-    return 'master'
-
 def branch_exists(branch_name):
     for branch in git_output(['branch', '--list', '--remote']).splitlines():
         branch = branch.strip()
