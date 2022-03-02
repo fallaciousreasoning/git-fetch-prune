@@ -2,9 +2,25 @@
 
 import subprocess
 import sys
+import os
+from pathlib import Path
+from turtle import pos
 
-possible_masters = [ 'develop', 'master', 'main' ]
+CONFIG = f'{Path(__file__).resolve().parent}/config.txt'
 
+def get_possible_masters():
+    possible = set([ 'develop', 'master', 'main' ])
+    if os.path.exists(CONFIG):
+        with open(CONFIG) as f:
+            possible.update([l.strip() for l in f.readlines()])
+    return possible
+
+def add_possible_master(branch):
+    possible = get_possible_masters()
+    possible.update([branch])
+    with open(CONFIG, 'w') as f:
+        for branch in possible:
+            f.write(f'{branch}\n')
 
 def git_output(args):
     result = subprocess.run(['git', *args], stdout=subprocess.PIPE)
@@ -43,13 +59,14 @@ def delete_branch(branch):
 def run(dry_run=True):
     merged_branches = set()
 
+    possible_masters = get_possible_masters()
     for branch in possible_masters:
         if not branch_exists(branch): continue
 
-        print("Checking", branch)
         merged_branches.update(get_merged_branches(branch))
 
     for branch in merged_branches:
+        if branch in possible_masters: continue
         if not dry_run:
             delete_branch(branch)
         print(f'Deleted {branch}')
@@ -61,5 +78,12 @@ def should_actually_delete():
     return '--force' in sys.argv or '-F' in sys.argv
 
 if __name__ == "__main__":
-    dry_run = not should_actually_delete()
-    run(dry_run)
+    # Handle potentially adding a merge target.
+    try:
+        add_index = sys.argv.index('--add')
+        if add_index != -1:
+            branch = sys.argv[add_index + 1]
+            add_possible_master(branch)        
+    except:
+        dry_run = not should_actually_delete()
+        run(dry_run)
