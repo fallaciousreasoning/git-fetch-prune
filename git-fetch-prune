@@ -4,7 +4,6 @@ import subprocess
 import sys
 import os
 from pathlib import Path
-from turtle import pos
 
 CONFIG = f'{Path(__file__).resolve().parent}/config.txt'
 
